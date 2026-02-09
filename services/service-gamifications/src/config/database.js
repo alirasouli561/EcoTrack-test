@@ -1,3 +1,4 @@
+// Rôle du fichier : accès PostgreSQL + création du schéma minimal de gamification.
 import pg from 'pg';
 import env from './env.js';
 
@@ -16,6 +17,7 @@ pool.on('connect', () => {
 });
 
 export const ensureGamificationTables = async () => {
+  // Tables de base : utilisateurs + points pour le service de gamification.
   await pool.query(
     `CREATE TABLE IF NOT EXISTS utilisateur (
       id_utilisateur SERIAL PRIMARY KEY,
@@ -23,6 +25,7 @@ export const ensureGamificationTables = async () => {
     )`
   );
 
+  // Catalogue des badges disponibles.
   await pool.query(
     `CREATE TABLE IF NOT EXISTS badge (
       id_badge SERIAL PRIMARY KEY,
@@ -32,6 +35,7 @@ export const ensureGamificationTables = async () => {
     )`
   );
 
+  // Lien utilisateur <-> badge (historique d'obtention).
   await pool.query(
     `CREATE TABLE IF NOT EXISTS user_badge (
       id_utilisateur INT NOT NULL,
@@ -49,6 +53,7 @@ export const ensureGamificationTables = async () => {
     )`
   );
 
+  // Historique des points pour les stats.
   await pool.query(
     `CREATE TABLE IF NOT EXISTS historique_points (
       id_historique SERIAL PRIMARY KEY,
@@ -63,6 +68,7 @@ export const ensureGamificationTables = async () => {
     )`
   );
 
+  // Notifications internes de gamification.
   await pool.query(
     `CREATE TABLE IF NOT EXISTS notification (
       id_notification SERIAL PRIMARY KEY,
@@ -78,6 +84,7 @@ export const ensureGamificationTables = async () => {
     )`
   );
 
+  // Défis : structure minimale pour les routes /defis.
   await pool.query(
     `CREATE TABLE IF NOT EXISTS gamification_defi (
       id_defi SERIAL PRIMARY KEY,
@@ -93,6 +100,7 @@ export const ensureGamificationTables = async () => {
     )`
   );
 
+  // Participation aux défis, avec suivi de progression.
   await pool.query(
     `CREATE TABLE IF NOT EXISTS gamification_participation_defi (
       id_participation SERIAL PRIMARY KEY,
@@ -113,8 +121,10 @@ export const ensureGamificationTables = async () => {
     )`
   );
 
+  // Index pour accélérer la recherche sur les participations.
   await pool.query('CREATE INDEX IF NOT EXISTS idx_gamification_participation_defi ON gamification_participation_defi(id_defi, id_utilisateur)');
 
+  // Seed minimal des badges de base.
   await pool.query(
     `INSERT INTO badge (code, nom, description)
      VALUES

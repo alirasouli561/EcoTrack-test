@@ -1,3 +1,4 @@
+// Rôle du fichier : routes HTTP pour les défis.
 import { Router } from 'express';
 import {
   creerDefiHandler,

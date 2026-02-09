@@ -1,5 +1,7 @@
+// Rôle du fichier : calcul du classement et du niveau des utilisateurs.
 import pool from '../config/database.js';
 
+// Détermine un niveau lisible selon le total de points.
 const obtenirNiveau = (points) => {
   if (points >= 1000) {
     return 'Légende Verte';
@@ -13,6 +15,7 @@ const obtenirNiveau = (points) => {
   return 'Débutant';
 };
 
+// Met en forme les lignes SQL pour la réponse API.
 const mapperClassement = (rows) =>
   rows.map((row) => ({
     rang: Number(row.rang),
@@ -52,6 +55,7 @@ export const recupererClassement = async ({ limite = 10, idUtilisateur } = {}) =
     return { classement };
   }
 
+  // Version "focus utilisateur" pour renvoyer son rang actuel.
   const { rows: utilisateurRows } = await pool.query(
     `WITH classement AS (
       SELECT

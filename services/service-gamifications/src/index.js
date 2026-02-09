@@ -1,7 +1,9 @@
+// Rôle du fichier : point d'entrée Express, routes et gestion d'erreurs.
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import swaggerUi from 'swagger-ui-express';
+import { ZodError } from 'zod';
 import swaggerSpec from './config/swagger.js';
 import env, { validateEnv } from './config/env.js';
 import pool, { ensureGamificationTables } from './config/database.js';
@@ -17,6 +19,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 if (env.nodeEnv !== 'test') {
+  // En prod/dev, on s'assure que la config et les tables sont prêtes.
   validateEnv();
   await ensureGamificationTables();
 }
@@ -45,25 +48,13 @@ app.use('/', statsRoutes);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// 404 (si aucune route n'a matché)
-app.use((req, res) => {
-  res.status(404).json({ error: 'Route non trouvée' });
-});
-
 // Handler d'erreurs (Zod + autres)
-// IMPORTANT: ne pas dépendre uniquement de "instanceof" avec Jest/vm-modules
 app.use((err, req, res, next) => {
-  const isZodError =
-    err &&
-    (err.name === 'ZodError' ||
-      Array.isArray(err.issues) ||
-      Array.isArray(err.errors)); // selon versions/contexts
-
-  if (isZodError) {
-    const issues = err.issues || err.errors || [];
+  // On gère Zod proprement pour renvoyer un message clair aux tests.
+  if (err instanceof ZodError) {
     return res.status(400).json({
       error: 'Données invalides',
-      details: issues.map((issue) => ({
+      details: err.issues.map((issue) => ({
         champ: Array.isArray(issue.path) ? issue.path.join('.') : '',
         message: issue.message
       }))
@@ -74,6 +65,11 @@ app.use((err, req, res, next) => {
   return res.status(status).json({
     error: err?.message || 'Erreur serveur'
   });
+});
+
+// 404 (si aucune route n'a matché)
+app.use((req, res) => {
+  res.status(404).json({ error: 'Route non trouvée' });
 });
 
 let server;

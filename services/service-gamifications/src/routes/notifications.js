@@ -1,3 +1,4 @@
+// Rôle du fichier : routes HTTP pour les notifications.
 import { Router } from 'express';
 import {
   creerNotificationHandler,

@@ -1,3 +1,4 @@
+// Rôle du fichier : controller des défis et participations.
 import { z } from 'zod';
 import {
   creerDefi,
@@ -19,6 +20,7 @@ const defiSchema = z.object({
   path: ['date_fin']
 });
 
+// Crée un défi après validation Zod.
 export const creerDefiHandler = async (req, res, next) => {
   try {
     const payload = defiSchema.parse(req.body);
@@ -37,6 +39,7 @@ export const creerDefiHandler = async (req, res, next) => {
   }
 };
 
+// Liste les défis existants.
 export const listerDefisHandler = async (req, res, next) => {
   try {
     const defis = await listerDefis();
@@ -54,6 +57,7 @@ const participationParamsSchema = z.object({
   idDefi: z.coerce.number().int().positive()
 });
 
+// Crée une participation pour un utilisateur.
 export const creerParticipationHandler = async (req, res, next) => {
   try {
     const payload = participationSchema.parse(req.body);
@@ -78,6 +82,7 @@ const progressionParamsSchema = z.object({
   idUtilisateur: z.coerce.number().int().positive()
 });
 
+// Met à jour la progression d'un défi.
 export const mettreAJourProgressionHandler = async (req, res, next) => {
   try {
     const payload = progressionSchema.parse(req.body);

@@ -32,4 +32,24 @@ describe('notifications.service', () => {
     expect(notifications.length).toBe(1);
     expect(notifications[0].type).toBe('BADGE');
   });
+
+  it('filtre les notifications par utilisateur', async () => {
+    await creerNotification({
+      idUtilisateur: 1,
+      type: 'ALERTE',
+      titre: 'Alerte 1',
+      corps: 'Test.'
+    }, pool);
+    await creerNotification({
+      idUtilisateur: 2,
+      type: 'ALERTE',
+      titre: 'Alerte 2',
+      corps: 'Test.'
+    }, pool);
+
+    const notifications = await listerNotifications({ idUtilisateur: 1 });
+
+    expect(notifications.length).toBe(1);
+    expect(notifications[0].id_utilisateur).toBe(1);
+  });
 });

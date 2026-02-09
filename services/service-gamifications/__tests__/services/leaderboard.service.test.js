@@ -36,4 +36,28 @@ describe('leaderboard.service', () => {
     expect(resultat.classement[2].points).toBe(80);
     expect(resultat.classement[0].niveau).toBe('Super-Héros');
   });
+
+  it('respecte la limite et expose les badges', async () => {
+    const { rows } = await pool.query(
+      "SELECT id_badge FROM badge WHERE code = 'DEBUTANT'"
+    );
+    await pool.query(
+      'INSERT INTO user_badge (id_utilisateur, id_badge) VALUES ($1, $2)',
+      [1, rows[0].id_badge]
+    );
+
+    await pool.query(
+      `UPDATE utilisateur
+       SET points = CASE id_utilisateur
+         WHEN 1 THEN 120
+         WHEN 2 THEN 90
+         WHEN 3 THEN 60
+       END`
+    );
+
+    const resultat = await recupererClassement({ limite: 2 });
+
+    expect(resultat.classement.length).toBe(2);
+    expect(resultat.classement[0].badges.length).toBeGreaterThan(0);
+  });
 });

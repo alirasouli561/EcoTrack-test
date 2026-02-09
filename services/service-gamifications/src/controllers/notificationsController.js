@@ -1,3 +1,4 @@
+// Rôle du fichier : controller des notifications.
 import { z } from 'zod';
 import { creerNotification, listerNotifications } from '../services/notifications.service.js';
 
@@ -8,6 +9,7 @@ const creationSchema = z.object({
   corps: z.string().min(3)
 });
 
+// Crée une notification via le payload fourni.
 export const creerNotificationHandler = async (req, res, next) => {
   try {
     const payload = creationSchema.parse(req.body);
@@ -27,6 +29,7 @@ const listeSchema = z.object({
   id_utilisateur: z.coerce.number().int().positive()
 });
 
+// Liste les notifications pour un utilisateur donné.
 export const listerNotificationsHandler = async (req, res, next) => {
   try {
     const { id_utilisateur } = listeSchema.parse(req.query);

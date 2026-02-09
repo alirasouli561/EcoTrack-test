@@ -51,10 +51,23 @@ NODE_ENV=development
 docker compose -f docker-compose.test.yml up -d
 ```
 
-### Exécuter les tests
+### Définir la variable de connexion
+
+Linux/macOS :
 
 ```bash
 export GAMIFICATIONS_DATABASE_URL=postgresql://ecotrack:ecotrack@localhost:5435/ecotrack_test
+```
+
+Windows PowerShell :
+
+```powershell
+$env:GAMIFICATIONS_DATABASE_URL = "postgresql://ecotrack:ecotrack@localhost:5435/ecotrack_test"
+```
+
+### Exécuter les tests
+
+```bash
 npm test
 ```
 
@@ -66,6 +79,12 @@ npm run test:coverage
 ```
 
 > Astuce : vous pouvez également utiliser `DATABASE_URL` au lieu de `GAMIFICATIONS_DATABASE_URL` en environnement de test.
+
+Arrêter la base de test :
+
+```bash
+docker compose -f docker-compose.test.yml down -v
+```
 
 ---
 

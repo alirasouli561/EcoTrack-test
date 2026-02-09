@@ -1,3 +1,4 @@
+// Rôle du fichier : routes HTTP pour le classement.
 import { Router } from 'express';
 import { obtenirClassement } from '../controllers/classementController.js';
 

@@ -1,3 +1,4 @@
+// Rôle du fichier : routes HTTP pour les actions utilisateur.
 import { Router } from 'express';
 import { enregistrerAction } from '../controllers/actionsController.js';
 

@@ -38,4 +38,23 @@ describe('stats.service', () => {
     expect(Number(stats.parJour[0].points)).toBe(60);
     expect(stats.impactCO2).toBe(1);
   });
+
+  it('agrège correctement par semaine et par mois', async () => {
+    await pool.query('UPDATE utilisateur SET points = 90 WHERE id_utilisateur = 2');
+
+    await seedHistoriquePoints({
+      idUtilisateur: 2,
+      entries: [
+        { points: 20, date: '2024-01-10T10:00:00Z' },
+        { points: 30, date: '2024-01-12T10:00:00Z' },
+        { points: 40, date: '2024-02-05T10:00:00Z' }
+      ]
+    });
+
+    const stats = await recupererStatsUtilisateur({ idUtilisateur: 2 });
+
+    expect(stats.parSemaine.length).toBeGreaterThan(0);
+    expect(stats.parMois.length).toBeGreaterThan(0);
+    expect(Number(stats.parMois[0].points)).toBeGreaterThan(0);
+  });
 });

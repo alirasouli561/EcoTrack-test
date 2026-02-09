@@ -1,3 +1,4 @@
+// Rôle du fichier : routes HTTP pour les badges.
 import { Router } from 'express';
 import { obtenirBadges, obtenirBadgesUtilisateur } from '../controllers/badgesController.js';
 

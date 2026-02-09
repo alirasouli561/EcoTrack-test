@@ -1,3 +1,4 @@
+// Rôle du fichier : controller pour enregistrer une action utilisateur.
 import { z } from 'zod';
 import { enregistrerAction as enregistrerActionService } from '../services/gamificationService.js';
 
@@ -7,10 +8,12 @@ const actionSchema = z.object({
   points: z.number().int().positive().optional()
 });
 
+// Valide l'entrée et déclenche l'orchestration d'une action.
 export const enregistrerAction = async (req, res, next) => {
   try {
     const payload = actionSchema.parse(req.body);
 
+    // On mappe vers les noms attendus par le service métier.
     const resultat = await enregistrerActionService({
       idUtilisateur: payload.id_utilisateur,
       typeAction: payload.type_action,

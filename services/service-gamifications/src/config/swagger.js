@@ -1,3 +1,4 @@
+// Rôle du fichier : configuration Swagger pour exposer la doc des routes.
 import swaggerJSDoc from 'swagger-jsdoc';
 
 const swaggerDefinition = {
