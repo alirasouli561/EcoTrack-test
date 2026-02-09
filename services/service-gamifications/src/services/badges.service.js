@@ -1,3 +1,4 @@
+// Rôle du fichier : gestion du catalogue des badges et attribution automatique.
 import pool from '../config/database.js';
 
 export const BADGE_SEUILS = {
@@ -6,8 +7,10 @@ export const BADGE_SEUILS = {
   SUPER_HEROS: 1000
 };
 
+// Retourne tous les badges avec leur seuil de points.
 export const listerBadges = async () => {
   const { rows } = await pool.query(
+    // Lecture du catalogue des badges.
     'SELECT id_badge, code, nom, description FROM badge ORDER BY nom'
   );
   return rows
@@ -18,6 +21,7 @@ export const listerBadges = async () => {
     .sort((a, b) => (a.points_requis ?? 0) - (b.points_requis ?? 0));
 };
 
+// Retourne les badges déjà obtenus par un utilisateur.
 export const listerBadgesUtilisateur = async (idUtilisateur) => {
   const { rows } = await pool.query(
     `SELECT b.id_badge, b.code, b.nom, b.description, bu.date_obtention
@@ -33,6 +37,7 @@ export const listerBadgesUtilisateur = async (idUtilisateur) => {
   }));
 };
 
+// Attribue automatiquement les badges atteints sans doublons.
 export const attribuerBadgesAutomatique = async ({ client = pool, idUtilisateur, totalPoints }) => {
   const codes = Object.keys(BADGE_SEUILS);
   if (codes.length === 0) {
@@ -40,6 +45,7 @@ export const attribuerBadgesAutomatique = async ({ client = pool, idUtilisateur,
   }
 
   const { rows: badgesEligibles } = await client.query(
+    // Charge uniquement les badges connus par le service.
     `SELECT id_badge, code, nom
      FROM badge
      WHERE code = ANY($1)`,
@@ -61,6 +67,7 @@ export const attribuerBadgesAutomatique = async ({ client = pool, idUtilisateur,
   }
 
   const { rows: badgesExistants } = await client.query(
+    // On récupère les badges déjà obtenus pour éviter les doublons.
     'SELECT id_badge FROM user_badge WHERE id_utilisateur = $1',
     [idUtilisateur]
   );
@@ -69,6 +76,7 @@ export const attribuerBadgesAutomatique = async ({ client = pool, idUtilisateur,
   const nouveaux = badgesFiltres.filter((badge) => !existants.has(badge.id_badge));
 
   for (const badge of nouveaux) {
+    // Insertion des nouveaux badges uniquement.
     await client.query(
       'INSERT INTO user_badge (id_utilisateur, id_badge) VALUES ($1, $2)',
       [idUtilisateur, badge.id_badge]

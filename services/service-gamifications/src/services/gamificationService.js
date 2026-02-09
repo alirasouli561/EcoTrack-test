@@ -1,8 +1,10 @@
+// Rôle du fichier : orchestrer l'enregistrement d'une action utilisateur.
 import pool from '../config/database.js';
 import { calculerPoints, incrementerPoints, enregistrerHistoriquePoints } from './points.service.js';
 import { attribuerBadgesAutomatique } from './badges.service.js';
 import { creerNotification } from './notifications.service.js';
 
+// Enregistre une action et gère points, historique, badges et notifications.
 export const enregistrerAction = async ({ idUtilisateur, typeAction, pointsCustom }) => {
   const points = calculerPoints(typeAction, pointsCustom);
   const client = await pool.connect();
@@ -31,6 +33,7 @@ export const enregistrerAction = async ({ idUtilisateur, typeAction, pointsCusto
     });
 
     for (const badge of nouveauxBadges) {
+      // Une notification est créée pour chaque badge débloqué.
       await creerNotification(
         {
           idUtilisateur,

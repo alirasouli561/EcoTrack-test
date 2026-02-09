@@ -1,5 +1,7 @@
+// Rôle du fichier : accès aux défis et participations.
 import pool from '../config/database.js';
 
+// Crée un défi avec ses dates et sa récompense.
 export const creerDefi = async ({
   titre,
   description,
@@ -10,6 +12,7 @@ export const creerDefi = async ({
   typeDefi
 }) => {
   const { rows } = await pool.query(
+    // Insertion d'un défi dans la base.
     `INSERT INTO gamification_defi (titre, description, objectif, recompense_points, date_debut, date_fin, type_defi)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING *`,
@@ -19,6 +22,7 @@ export const creerDefi = async ({
   return rows[0];
 };
 
+// Liste les défis disponibles, les plus récents d'abord.
 export const listerDefis = async () => {
   const { rows } = await pool.query(
     'SELECT * FROM gamification_defi ORDER BY date_debut DESC'
@@ -26,8 +30,10 @@ export const listerDefis = async () => {
   return rows;
 };
 
+// Inscrit un utilisateur à un défi.
 export const creerParticipation = async ({ idDefi, idUtilisateur }) => {
   const { rows } = await pool.query(
+    // Insertion d'une participation simple.
     `INSERT INTO gamification_participation_defi (id_defi, id_utilisateur)
      VALUES ($1, $2)
      RETURNING *`,
@@ -37,8 +43,10 @@ export const creerParticipation = async ({ idDefi, idUtilisateur }) => {
   return rows[0];
 };
 
+// Met à jour la progression d'une participation.
 export const mettreAJourProgression = async ({ idDefi, idUtilisateur, progression, statut }) => {
   const { rows } = await pool.query(
+    // Update de la progression avec statut optionnel.
     `UPDATE gamification_participation_defi
      SET progression = $1,
          statut = COALESCE($2, statut),

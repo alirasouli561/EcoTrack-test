@@ -1,3 +1,4 @@
+// Rôle du fichier : routes HTTP pour les statistiques utilisateur.
 import { Router } from 'express';
 import { obtenirStatsUtilisateur } from '../controllers/statsController.js';
 
