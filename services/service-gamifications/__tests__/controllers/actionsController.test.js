@@ -1,7 +1,12 @@
-import { enregistrerAction } from '../../src/controllers/actionsController.js';
-import * as gamificationService from '../../src/services/gamificationService.js';
+import { jest } from '@jest/globals';
 
-jest.mock('../../src/services/gamificationService.js');
+const mockEnregistrerAction = jest.fn();
+
+jest.unstable_mockModule('../../src/services/gamificationService.js', () => ({
+  enregistrerAction: mockEnregistrerAction
+}));
+
+const { enregistrerAction } = await import('../../src/controllers/actionsController.js');
 
 const mockRequest = (body = {}) => ({
   body
@@ -27,7 +32,7 @@ describe('actionsController', () => {
       type_action: 'signalement'
     });
     const res = mockResponse();
-    gamificationService.enregistrerAction.mockResolvedValue({
+    mockEnregistrerAction.mockResolvedValue({
       pointsAjoutes: 10,
       totalPoints: 110,
       nouveauxBadges: [{ code: 'DEBUTANT' }]
@@ -35,7 +40,7 @@ describe('actionsController', () => {
 
     await enregistrerAction(req, res, next);
 
-    expect(gamificationService.enregistrerAction).toHaveBeenCalledWith({
+    expect(mockEnregistrerAction).toHaveBeenCalledWith({
       idUtilisateur: 1,
       typeAction: 'signalement',
       pointsCustom: undefined
@@ -69,7 +74,7 @@ describe('actionsController', () => {
     const res = mockResponse();
     const error = new Error('Utilisateur introuvable');
     error.status = 400;
-    gamificationService.enregistrerAction.mockRejectedValue(error);
+    mockEnregistrerAction.mockRejectedValue(error);
 
     await enregistrerAction(req, res, next);
 

@@ -1,7 +1,12 @@
-import { obtenirClassement } from '../../src/controllers/classementController.js';
-import * as leaderboardService from '../../src/services/leaderboard.service.js';
+import { jest } from '@jest/globals';
 
-jest.mock('../../src/services/leaderboard.service.js');
+const mockRecupererClassement = jest.fn();
+
+jest.unstable_mockModule('../../src/services/leaderboard.service.js', () => ({
+  recupererClassement: mockRecupererClassement
+}));
+
+const { obtenirClassement } = await import('../../src/controllers/classementController.js');
 
 const mockRequest = ({ query = {} } = {}) => ({
   query
@@ -24,11 +29,11 @@ describe('classementController', () => {
   it('renvoie le classement avec la limite demandée', async () => {
     const req = mockRequest({ query: { limite: '5' } });
     const res = mockResponse();
-    leaderboardService.recupererClassement.mockResolvedValue({ classement: [] });
+    mockRecupererClassement.mockResolvedValue({ classement: [] });
 
     await obtenirClassement(req, res, next);
 
-    expect(leaderboardService.recupererClassement).toHaveBeenCalledWith({
+    expect(mockRecupererClassement).toHaveBeenCalledWith({
       limite: 5,
       idUtilisateur: undefined
     });

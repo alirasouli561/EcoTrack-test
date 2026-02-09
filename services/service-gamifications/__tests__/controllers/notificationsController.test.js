@@ -1,10 +1,17 @@
-import {
+import { jest } from '@jest/globals';
+
+const mockCreerNotification = jest.fn();
+const mockListerNotifications = jest.fn();
+
+jest.unstable_mockModule('../../src/services/notifications.service.js', () => ({
+  creerNotification: mockCreerNotification,
+  listerNotifications: mockListerNotifications
+}));
+
+const {
   creerNotificationHandler,
   listerNotificationsHandler
-} from '../../src/controllers/notificationsController.js';
-import * as notificationsService from '../../src/services/notifications.service.js';
-
-jest.mock('../../src/services/notifications.service.js');
+} = await import('../../src/controllers/notificationsController.js');
 
 const mockRequest = ({ body = {}, query = {} } = {}) => ({
   body,
@@ -35,11 +42,11 @@ describe('notificationsController', () => {
       }
     });
     const res = mockResponse();
-    notificationsService.creerNotification.mockResolvedValue({ id_notification: 1 });
+    mockCreerNotification.mockResolvedValue({ id_notification: 1 });
 
     await creerNotificationHandler(req, res, next);
 
-    expect(notificationsService.creerNotification).toHaveBeenCalledWith({
+    expect(mockCreerNotification).toHaveBeenCalledWith({
       idUtilisateur: 1,
       type: 'BADGE',
       titre: 'Badge',
@@ -52,11 +59,11 @@ describe('notificationsController', () => {
   it('liste les notifications d\'un utilisateur', async () => {
     const req = mockRequest({ query: { id_utilisateur: '2' } });
     const res = mockResponse();
-    notificationsService.listerNotifications.mockResolvedValue([{ id_notification: 1 }]);
+    mockListerNotifications.mockResolvedValue([{ id_notification: 1 }]);
 
     await listerNotificationsHandler(req, res, next);
 
-    expect(notificationsService.listerNotifications).toHaveBeenCalledWith({ idUtilisateur: 2 });
+    expect(mockListerNotifications).toHaveBeenCalledWith({ idUtilisateur: 2 });
     expect(res.json).toHaveBeenCalledWith([{ id_notification: 1 }]);
   });
 });

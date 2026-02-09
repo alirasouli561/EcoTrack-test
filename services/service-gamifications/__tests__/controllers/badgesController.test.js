@@ -1,7 +1,14 @@
-import { obtenirBadges, obtenirBadgesUtilisateur } from '../../src/controllers/badgesController.js';
-import * as badgesService from '../../src/services/badges.service.js';
+import { jest } from '@jest/globals';
 
-jest.mock('../../src/services/badges.service.js');
+const mockListerBadges = jest.fn();
+const mockListerBadgesUtilisateur = jest.fn();
+
+jest.unstable_mockModule('../../src/services/badges.service.js', () => ({
+  listerBadges: mockListerBadges,
+  listerBadgesUtilisateur: mockListerBadgesUtilisateur
+}));
+
+const { obtenirBadges, obtenirBadgesUtilisateur } = await import('../../src/controllers/badgesController.js');
 
 const mockRequest = ({ params = {}, query = {} } = {}) => ({
   params,
@@ -25,7 +32,7 @@ describe('badgesController', () => {
   it('renvoie le catalogue des badges', async () => {
     const req = mockRequest();
     const res = mockResponse();
-    badgesService.listerBadges.mockResolvedValue([{ code: 'DEBUTANT' }]);
+    mockListerBadges.mockResolvedValue([{ code: 'DEBUTANT' }]);
 
     await obtenirBadges(req, res, next);
 
@@ -35,11 +42,11 @@ describe('badgesController', () => {
   it('renvoie les badges d\'un utilisateur', async () => {
     const req = mockRequest({ params: { idUtilisateur: '2' } });
     const res = mockResponse();
-    badgesService.listerBadgesUtilisateur.mockResolvedValue([{ code: 'DEBUTANT' }]);
+    mockListerBadgesUtilisateur.mockResolvedValue([{ code: 'DEBUTANT' }]);
 
     await obtenirBadgesUtilisateur(req, res, next);
 
-    expect(badgesService.listerBadgesUtilisateur).toHaveBeenCalledWith(2);
+    expect(mockListerBadgesUtilisateur).toHaveBeenCalledWith(2);
     expect(res.json).toHaveBeenCalledWith([{ code: 'DEBUTANT' }]);
   });
 });
